@@ -14,6 +14,8 @@ var defaults = {
   className: {
     container: 'fjs-container',
     col: 'fjs-col',
+    group: 'fjs-group',
+    header: 'fjs-header',
     list: 'fjs-list',
     item: 'fjs-item',
     active: 'fjs-active',
@@ -73,8 +75,21 @@ function finder(container, data, options) {
  * @param {element} column to append to container
  */
 finder.addColumn = function addColumn(container, cfg, emitter, col) {
-  container.appendChild(col);
-
+  if (cfg.header) {
+    var div = _.el('div');
+    var h = _.el('h3');
+    h.appendChild(document.createTextNode(cfg.header));
+    _.addClass(h, cfg.className.header);
+    _.addClass(div, cfg.className.group);
+    div.appendChild(h);
+    div.appendChild(col);
+    container.appendChild(div);
+  }
+  else {
+    var div = _.el('div');
+    div.appendChild(col);
+    container.appendChild(div);
+  }
   emitter.emit('column-created', col);
 };
 
@@ -94,7 +109,7 @@ finder.itemSelected = function itemSelected(cfg, emitter, value) {
     _.removeClass(activeEls[0], cfg.className.active);
   }
   _.addClass(itemEl, cfg.className.active);
-  _.nextSiblings(col).map(_.remove);
+  _.nextSiblings(col.parentNode).map(_.remove);
 
   if (data) {
     finder.createColumn(data, cfg, emitter, item);
